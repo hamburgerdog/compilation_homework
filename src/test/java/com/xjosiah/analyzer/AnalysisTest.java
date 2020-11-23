@@ -14,9 +14,10 @@ public class AnalysisTest {
 
     @Test
     public void testDoAnalysis() {
-        Analysis analysis = new Analysis("src/main/resources/test.c");
+//        Analysis analysis = new Analysis("src/main/resources/test.c");
+        Analysis analysis = new Analysis("src/main/resources/test1.c");
         String s = analysis.getFileAllLine();
-        System.out.println(s);
+//        System.out.println(s);
         ArrayList<StringBuilder> resultStr = null;
         try {
             resultStr = analysis.doAnalysis(s);
@@ -32,4 +33,5 @@ public class AnalysisTest {
         char c = stringBuilder.charAt(0);
         System.out.println(String.valueOf(c).matches("^[0-9]"));
     }
+
 }

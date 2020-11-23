@@ -63,7 +63,10 @@ public class Analysis {
                     break;
                 case 'i':
                     keyWord = initStrBulider(keyWord, "int");
-                    mulIntTmp = getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if (!isID()){
+                        mulIntTmp = getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else
+                        mulIntTmp = appenIDtoStrTmp(strTmp,allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     if (mulIntTmp == 1) {
                         strTmp.deleteCharAt(strTmp.length() - 1);
                         keyWord = initStrBulider(keyWord, "if");
@@ -72,8 +75,11 @@ public class Analysis {
                     i += mulIntTmp;
                     break;
                 case 'c':
-                    keyWord = initStrBulider(keyWord, "char");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if (!isID()){
+                        keyWord = initStrBulider(keyWord, "char");
+                        i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else
+                        i += appenIDtoStrTmp(strTmp,allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case 'e':
                     keyWord = initStrBulider(keyWord, "else");
@@ -220,6 +226,11 @@ public class Analysis {
         if (isKeyWord(keyWord)) {
             if (subStr.equals(keyWord)) {
                 if (strTmp.length() != 0) {
+                    if (strTmp.charAt(0) == '"') {
+                        strTmp.append(keyWord);
+                        return keyWord.length();
+                    }
+                    //  异常处理
                     if (strTmp.toString().matches(".*\\W.*")) {
                         if (String.valueOf(strTmp.charAt(0)).matches("^[0-9]"))
                             throw new AnalysisException("errorString:" + strTmp.toString() + "\t赋值错误：INT类型的常量中不能插入符号");
@@ -227,6 +238,7 @@ public class Analysis {
                             throw new AnalysisException("errorString:" + strTmp.toString() + "\t变量定义错误：变量名称中不能含有特殊符号");
 
                     }
+                    //  正常插入处理 INT 和 ID
                     if (String.valueOf(strTmp.charAt(0)).matches("^[0-9]")) {
                         resultStr.add(new StringBuilder(20 + "\t:\t" + strTmp));
                     } else {
@@ -281,5 +293,25 @@ public class Analysis {
         sb.delete(0, sb.length());
         sb.append(keyword);
         return sb;
+    }
+
+    public boolean isID() {
+        if (resultStr.size()<=1) {
+            return false;
+        }
+        else {
+            String s = resultStr.get(resultStr.size() - 1).toString();
+            return s.endsWith("int") || s.endsWith("char");
+        }
+    }
+
+    public int appenIDtoStrTmp(StringBuilder strTmp,String subStr,String keyWord){
+        if (subStr.equals(keyWord)){
+            strTmp.append(keyWord);
+            return keyWord.length();
+        }else {
+            strTmp.append(keyWord.charAt(0));
+            return 1;
+        }
     }
 }
