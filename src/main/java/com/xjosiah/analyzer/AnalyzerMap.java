@@ -2,6 +2,11 @@ package com.xjosiah.analyzer;
 
 import java.util.HashMap;
 
+/**
+ * 用HashMap结构来组成关键词表 - [KeyWord - SYN]
+ * @author xjosiah
+ * @since 2020.11.23
+ */
 public class AnalyzerMap {
     private static HashMap<String,Integer> wordMap;
 
@@ -42,6 +47,10 @@ public class AnalyzerMap {
         wordMap.put("!=",40);
     }
 
+    /**
+     * 获取词表的接口
+     * @return  关键词表
+     */
     public static HashMap<String, Integer> getWordMap() {
         return wordMap;
     }

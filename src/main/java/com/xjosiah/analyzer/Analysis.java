@@ -6,37 +6,57 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Stream;
 
+/**
+ * 一个简单的C语言词法分析器
+ * @author xjosiah
+ * @since 2020.11.23
+ * @version 1.0
+ */
 public class Analysis {
+    //  用于初始化当前关键词表的C语言源程序的URI
     private String uri;
+    //  关键词表
     private HashMap<String, Integer> wordMap;
+    //  当前关键词表 - 关键词表的子集
     private HashMap<String, Boolean> thisWordMap;
+    //  存放最终分析的结果
     private ArrayList<StringBuilder> resultStr;
+    //  过滤后的C语言源程序
     private String fileAllLine;
 
     public Analysis(String uri) {
         this.uri = uri;
+        wordMap = AnalyzerMap.getWordMap();
+        //  初始化当前关键词表
         thisWordMap = new HashMap<>();
         resultStr = new ArrayList<>();
-        wordMap = AnalyzerMap.getWordMap();
+        //  读文件 获取 fileAllline
         this.initMap();
     }
 
+    /**
+     * @return 源文件过滤后的初始字符串
+     */
     public String getFileAllLine() {
         return fileAllLine;
     }
 
+    /**
+     * 过滤文件获取初始字符串，如过滤文件中的注释、空格、换行符等
+     */
     public void initMap() {
         fileAllLine = "";
         try {
             List<String> allLines = Files.readAllLines(Paths.get(uri));
+            //  用于跳过多行注释 即 /* skip */
             boolean skip = false;
             for (String line : allLines) {
-                System.out.println(line);
+                //  单行注释
                 if (line.trim().startsWith("/*") && line.trim().endsWith("*/")) {
                     continue;
                 }
+                //  多行注释
                 if (line.trim().startsWith("/*")) {
                     skip = true;
                     continue;
@@ -45,78 +65,94 @@ public class Analysis {
                     skip = false;
                     continue;
                 }
+                //  单行注释
                 if (line.trim().startsWith("//") || line.trim().startsWith("#")) {
                     continue;
                 }
                 if (skip)
                     continue;
+                //  拼接字符串
                 String[] ss = line.trim().split(" ");
                 for (String s : ss) {
                     fileAllLine += s;
                 }
             }
-            System.out.println(fileAllLine);
+            //  初始化当前关键词表
             for (String s : wordMap.keySet()) {
                 thisWordMap.put(s, fileAllLine.contains(s));
             }
-            System.out.println(thisWordMap);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * 使用与该分析器相关的当前关键词表来进行词法分析
+     * @param s 源字符串
+     * @return  分析结果
+     * @throws AnalysisException    常见的词法分析异常
+     */
     public ArrayList<StringBuilder> doAnalysis(String s) throws AnalysisException {
         String allLine = s;
+        //  操作的StringBuilder对象
         StringBuilder strTmp = new StringBuilder();
+        //  与当前字符相关联的keyWord
         StringBuilder keyWord = new StringBuilder();
+        //  一次操作的字符数量
         int mulIntTmp;
+        //  当前字符
         char thisChar;
+        //  开始从fileAllLine字符串中进行解析
         for (int i = 0; i < allLine.length(); ) {
             thisChar = allLine.charAt(i);
             switch (thisChar) {
                 case 'm':
+                    //  初始化当前KeyWord
                     keyWord = initStrBulider(keyWord, "main");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    //  进行词法分析
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case 'i':
                     keyWord = initStrBulider(keyWord, "int");
+                    //  char(int)类型后紧跟一个char(int)是不符合词法规律的，因此此处的char视为是ID类型中的子字符串
+                    //  与'i'对应的有两个关键词，即 int id
                     if (!isID()) {
-                        mulIntTmp = getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     } else
                         mulIntTmp = appenIDtoStrTmp(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     if (mulIntTmp == 1) {
                         strTmp.deleteCharAt(strTmp.length() - 1);
                         keyWord = initStrBulider(keyWord, "if");
-                        mulIntTmp = getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     }
                     i += mulIntTmp;
                     break;
                 case 'c':
                     if (!isID()) {
                         keyWord = initStrBulider(keyWord, "char");
-                        i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     } else
                         i += appenIDtoStrTmp(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case 'e':
                     keyWord = initStrBulider(keyWord, "else");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case 'f':
                     keyWord = initStrBulider(keyWord, "for");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case 'w':
                     keyWord = initStrBulider(keyWord, "while");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case 'r':
                     keyWord = initStrBulider(keyWord, "return");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case 'v':
                     keyWord = initStrBulider(keyWord, "void");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case '\'':
                 case '\"':
@@ -142,107 +178,114 @@ public class Analysis {
                     break;
                 case '=':
                     keyWord = initStrBulider(keyWord, "==");
-                    mulIntTmp = getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     if (mulIntTmp == 1) {
                         strTmp.deleteCharAt(strTmp.length() - 1);
                         keyWord = initStrBulider(keyWord, "=");
-                        mulIntTmp = getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     }
                     i += mulIntTmp;
                     break;
                 case '+':
                     keyWord = initStrBulider(keyWord, "+");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case '-':
                     keyWord = initStrBulider(keyWord, "-");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case '*':
                     keyWord = initStrBulider(keyWord, "*");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case '/':
                     keyWord = initStrBulider(keyWord, "/");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case '(':
                     keyWord = initStrBulider(keyWord, "(");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case ')':
                     keyWord = initStrBulider(keyWord, ")");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case '[':
                     keyWord = initStrBulider(keyWord, "[");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case ']':
                     keyWord = initStrBulider(keyWord, "]");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case '{':
                     keyWord = initStrBulider(keyWord, "{");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case '}':
                     keyWord = initStrBulider(keyWord, "}");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case ',':
                     keyWord = initStrBulider(keyWord, ",");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case ':':
                     keyWord = initStrBulider(keyWord, ":");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case ';':
                     keyWord = initStrBulider(keyWord, ";");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case '>':
                     keyWord = initStrBulider(keyWord, ">=");
-                    mulIntTmp = getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     if (mulIntTmp == 1) {
                         strTmp.deleteCharAt(strTmp.length() - 1);
                         keyWord = initStrBulider(keyWord, ">");
-                        mulIntTmp = getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     }
                     i += mulIntTmp;
                     break;
                 case '<':
                     keyWord = initStrBulider(keyWord, "<=");
-                    mulIntTmp = getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     if (mulIntTmp == 1) {
                         strTmp.deleteCharAt(strTmp.length() - 1);
                         keyWord = initStrBulider(keyWord, "<");
-                        mulIntTmp = getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     }
                     i += mulIntTmp;
                     break;
                 case '!':
                     keyWord = initStrBulider(keyWord, "!=");
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 default:
                     keyWord = initStrBulider(keyWord, String.valueOf(thisChar));
-                    i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
             }
-        }
-        if (strTmp.length() != 0) {
-            resultStr.add(new StringBuilder(10 + "\t:\t" + strTmp));
-            strTmp.delete(0, strTmp.length());
         }
         return resultStr;
     }
 
-    public int getKeyWorld(StringBuilder strTmp, String subStr, String keyWord) throws AnalysisException {
+    /**
+     * 词法分析
+     * @param strTmp 暂存的字符串
+     * @param subStr 当前处理的字符串，用于与KEYWORD比较
+     * @param keyWord   关键词
+     * @return  处理的字符数量
+     * @throws AnalysisException
+     */
+    public int getKeyWord(StringBuilder strTmp, String subStr, String keyWord) throws AnalysisException {
+        //  查看当前关键词表中有无该关键词，没有则直接跳过，并暂存当前字符
         if (isKeyWord(keyWord)) {
             if (subStr.equals(keyWord)) {
+                //  处理暂存的字符串，找到关键词也意味着前面暂存未处理的字符串结束
                 if (strTmp.length() != 0) {
+                    //  如果是STRING类型中包含的KEYWORD则直接跳过
                     if (strTmp.charAt(0) == '"') {
                         strTmp.append(keyWord);
                         return keyWord.length();
@@ -261,8 +304,10 @@ public class Analysis {
                     } else {
                         resultStr.add(new StringBuilder(10 + "\t:\t" + strTmp));
                     }
+                    //  清空暂存数据
                     strTmp.delete(0, strTmp.length());
                 }
+                //  添加关键词到结果中
                 resultStr.add(new StringBuilder(getSyn(keyWord) + "\t:\t" + keyWord));
                 return keyWord.length();
             }
@@ -271,11 +316,22 @@ public class Analysis {
         return 1;
     }
 
+    /**
+     * 处理STRING类型的字符串
+     * @param strTmp    暂存字符串
+     * @param thisChar  当前字符
+     * @return  处理的字符数量
+     * @throws CHARException
+     */
     public int getSTRING(StringBuilder strTmp, char thisChar) throws CHARException {
         if (thisChar == '\'' || thisChar == '\"') {
+            //  暂存数据为空则代表字符串起始
             if (strTmp.length() == 0) {
                 strTmp.append(thisChar);
-            } else if (thisChar == strTmp.charAt(0)) {
+            }
+            //  暂存数据不为空 则 如果当前字符于字符串起始字符相等 说明字符或字符串结束
+            else if (thisChar == strTmp.charAt(0)) {
+                //  '' 中只能存放单个字符
                 if (thisChar == '\'' && strTmp.length() == 2) {
                     resultStr.add(new StringBuilder(51 + "\t:\t" + strTmp.charAt(1)));
                 } else if (thisChar == '\"') {
@@ -285,16 +341,30 @@ public class Analysis {
                     throw new CHARException("errorString:" + strTmp.toString() + "'\tchar类型变量错误：''中只能存放单个字符");
                 }
                 strTmp.delete(0, strTmp.length());
+            }else {
+                //  异常处理
+                throw new CHARException("errorString:" + strTmp.toString() + "'\tchar类型变量错误：'' 和 \"\" 不对应");
             }
         }
         return 1;
     }
 
+    /**
+     * 处理INT类型的字符
+     * @param strTmp    暂存字符串
+     * @param thisChar  当前字符
+     * @return
+     */
     public int getINT(StringBuilder strTmp, char thisChar) {
         strTmp.append(thisChar);
         return 1;
     }
 
+    /**
+     * 查看当前关键词表
+     * @param inputStr  要查询的KEYWORD
+     * @return          当前关键词表是否包含该关键词
+     */
     public boolean isKeyWord(String inputStr) {
         if (thisWordMap.get(inputStr) == null) {
             return false;
@@ -302,16 +372,30 @@ public class Analysis {
             return thisWordMap.get(inputStr);
     }
 
+    /**
+     * 获取关键词表中KEYWORD对应的SYN
+     * @param key   KEYWORD
+     * @return
+     */
     public int getSyn(String key) {
         return wordMap.get(key);
     }
 
+    /**
+     * 用KEYWORD初始化StringBuilder类型的当前关键词
+     * @param sb    当前关键词
+     * @param keyword   关键词
+     * @return
+     */
     public StringBuilder initStrBulider(StringBuilder sb, String keyword) {
         sb.delete(0, sb.length());
         sb.append(keyword);
         return sb;
     }
-
+    /**
+     * 用于辨认ID类型的字符串，即char、int等关键词可以被包含为变量名
+     * @return  字符串是否是ID类型
+     */
     public boolean isID() {
         if (resultStr.size() <= 1) {
             return false;
@@ -320,7 +404,13 @@ public class Analysis {
             return s.endsWith("int") || s.endsWith("char");
         }
     }
-
+    /**
+     * 将ID类型的字符串添加到暂存字符串中
+     * @param strTmp    暂存字符串
+     * @param subStr    截断于fileAllLine的子字符串（当前字符的后续，大小为于KEYWORD长度相同）用来与KEYWORD比较
+     * @param keyWord   关键词
+     * @return          操作的字符数量
+     */
     public int appenIDtoStrTmp(StringBuilder strTmp, String subStr, String keyWord) {
         if (subStr.equals(keyWord)) {
             strTmp.append(keyWord);
