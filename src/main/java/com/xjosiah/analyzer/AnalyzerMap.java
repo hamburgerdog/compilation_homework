@@ -17,6 +17,7 @@ public class AnalyzerMap {
         wordMap.put("return",8);
         wordMap.put("void",9);
         wordMap.put("STRING",50);
+        wordMap.put("CHAR",51);
         wordMap.put("ID",10);
         wordMap.put("INT",20);
         wordMap.put("=",21);
