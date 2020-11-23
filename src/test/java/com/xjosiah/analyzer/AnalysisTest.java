@@ -3,7 +3,6 @@ package com.xjosiah.analyzer;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class AnalysisTest {
     @Test
@@ -15,13 +14,14 @@ public class AnalysisTest {
     @Test
     public void testDoAnalysis() {
 //        Analysis analysis = new Analysis("src/main/resources/test.c");
-        Analysis analysis = new Analysis("src/main/resources/test1.c");
+//        Analysis analysis = new Analysis("src/main/resources/test1.c");
+        Analysis analysis = new Analysis("src/main/resources/test2.c");
         String s = analysis.getFileAllLine();
-//        System.out.println(s);
         ArrayList<StringBuilder> resultStr = null;
         try {
             resultStr = analysis.doAnalysis(s);
-            resultStr.forEach(System.out::println);
+            if (resultStr!=null)
+                resultStr.forEach(System.out::println);
         } catch (AnalysisException e) {
             e.printStackTrace();
         }

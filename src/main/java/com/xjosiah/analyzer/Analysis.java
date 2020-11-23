@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class Analysis {
     private String uri;
@@ -30,15 +31,31 @@ public class Analysis {
         fileAllLine = "";
         try {
             List<String> allLines = Files.readAllLines(Paths.get(uri));
+            boolean skip = false;
             for (String line : allLines) {
-                if (line.startsWith("//")) {
-                    break;
+                System.out.println(line);
+                if (line.trim().startsWith("/*") && line.trim().endsWith("*/")) {
+                    continue;
                 }
+                if (line.trim().startsWith("/*")) {
+                    skip = true;
+                    continue;
+                }
+                if (line.trim().endsWith("*/")) {
+                    skip = false;
+                    continue;
+                }
+                if (line.trim().startsWith("//") || line.trim().startsWith("#")) {
+                    continue;
+                }
+                if (skip)
+                    continue;
                 String[] ss = line.trim().split(" ");
                 for (String s : ss) {
                     fileAllLine += s;
                 }
             }
+            System.out.println(fileAllLine);
             for (String s : wordMap.keySet()) {
                 thisWordMap.put(s, fileAllLine.contains(s));
             }
@@ -63,10 +80,10 @@ public class Analysis {
                     break;
                 case 'i':
                     keyWord = initStrBulider(keyWord, "int");
-                    if (!isID()){
+                    if (!isID()) {
                         mulIntTmp = getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
-                    }else
-                        mulIntTmp = appenIDtoStrTmp(strTmp,allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    } else
+                        mulIntTmp = appenIDtoStrTmp(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     if (mulIntTmp == 1) {
                         strTmp.deleteCharAt(strTmp.length() - 1);
                         keyWord = initStrBulider(keyWord, "if");
@@ -75,11 +92,11 @@ public class Analysis {
                     i += mulIntTmp;
                     break;
                 case 'c':
-                    if (!isID()){
+                    if (!isID()) {
                         keyWord = initStrBulider(keyWord, "char");
                         i += getKeyWorld(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
-                    }else
-                        i += appenIDtoStrTmp(strTmp,allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    } else
+                        i += appenIDtoStrTmp(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
                 case 'e':
                     keyWord = initStrBulider(keyWord, "else");
@@ -296,20 +313,19 @@ public class Analysis {
     }
 
     public boolean isID() {
-        if (resultStr.size()<=1) {
+        if (resultStr.size() <= 1) {
             return false;
-        }
-        else {
+        } else {
             String s = resultStr.get(resultStr.size() - 1).toString();
             return s.endsWith("int") || s.endsWith("char");
         }
     }
 
-    public int appenIDtoStrTmp(StringBuilder strTmp,String subStr,String keyWord){
-        if (subStr.equals(keyWord)){
+    public int appenIDtoStrTmp(StringBuilder strTmp, String subStr, String keyWord) {
+        if (subStr.equals(keyWord)) {
             strTmp.append(keyWord);
             return keyWord.length();
-        }else {
+        } else {
             strTmp.append(keyWord.charAt(0));
             return 1;
         }

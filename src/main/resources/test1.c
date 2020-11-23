@@ -5,6 +5,8 @@ int main(void){
     char charstring1[100] = "mainintcharifelseforwhilereturnvoidSTRINGCHARIDINT=+-*/(){}[],;><>=<===!=";
     for (int i = 0; i <= 12345; i=i+1)
     {
+    //asdqwe
+    //qweqwe
         if (i>100)
         {
             while (i==5)
@@ -34,5 +36,6 @@ int main(void){
             }
         }
     }
+    //qwe123
     return 0;
 }
