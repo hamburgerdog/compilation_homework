@@ -1,5 +1,5 @@
 void main(){
-    int a1 = 1123;
+    int a 1 = 11.23;
     char b = 2;
     int c2c = 3;
     int array[2]={'1','2'};
@@ -18,6 +18,6 @@ void main(){
             return;
     }
     while(a<=320){
-        b="b123owqeysdfnlsadfreturnyqweoslmzxhalsqwelk";
+        b="b123owqeysdfnlsadfreturn  yqweoslmzxhalsqwelk";
     }
 }

@@ -6,20 +6,34 @@ import java.util.ArrayList;
 
 public class AnalysisTest {
     @Test
-    public void testDoAnalysis() {
-//        Analysis analysis = new Analysis("src/main/resources/test.c");
-//        Analysis analysis = new Analysis("src/main/resources/test1.c");
-        Analysis analysis = new Analysis("src/main/resources/test2.c");
-        String s = analysis.getFileAllLine();
-        ArrayList<StringBuilder> resultStr = null;
-        try {
-            resultStr = analysis.doAnalysis(s);
-            if (resultStr!=null)
-                resultStr.forEach(System.out::println);
-        } catch (AnalysisException e) {
-            e.printStackTrace();
+    public void test() {
+        Analysis analysis = new Analysis("src/main/resources/test.c");
+        ArrayList<String> fileAllLine = analysis.getFileAllLine();
+        ArrayList<StringBuilder> stringBuilders = new ArrayList<>();
+        for (String s : fileAllLine) {
+            try {
+                stringBuilders = analysis.doAnalysis(s);
+            } catch (AnalysisException e) {
+                e.printStackTrace();
+            }
         }
+        stringBuilders.forEach(System.out::println);
     }
+//    @Test
+//    public void testDoAnalysis() {
+////        Analysis analysis = new Analysis("src/main/resources/test.c");
+//        Analysis analysis = new Analysis("src/main/resources/test1.c");
+////        Analysis analysis = new Analysis("src/main/resources/test2.c");
+//        String s = analysis.getFileAllLine();
+//        ArrayList<StringBuilder> resultStr = null;
+//        try {
+//            resultStr = analysis.doAnalysis(s);
+//            if (resultStr!=null)
+//                resultStr.forEach(System.out::println);
+//        } catch (AnalysisException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     @Test
     public void regixTest() {

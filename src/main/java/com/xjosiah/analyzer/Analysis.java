@@ -18,35 +18,31 @@ public class Analysis {
     private String uri;
     //  关键词表
     private HashMap<String, Integer> wordMap;
-    //  当前关键词表 - 关键词表的子集
-    private HashMap<String, Boolean> thisWordMap;
     //  存放最终分析的结果
     private ArrayList<StringBuilder> resultStr;
     //  过滤后的C语言源程序
-    private String fileAllLine;
+    private ArrayList<String> fileAllLine;
 
     public Analysis(String uri) {
         this.uri = uri;
         wordMap = AnalyzerMap.getWordMap();
-        //  初始化当前关键词表
-        thisWordMap = new HashMap<>();
         resultStr = new ArrayList<>();
+        fileAllLine = new ArrayList<>();
         //  读文件 获取 fileAllline
-        this.initMap();
+        this.initFileAllLine();
     }
 
     /**
      * @return 源文件过滤后的初始字符串
      */
-    public String getFileAllLine() {
+    public ArrayList<String> getFileAllLine() {
         return fileAllLine;
     }
 
     /**
-     * 过滤文件获取初始字符串，如过滤文件中的注释、空格、换行符等
+     * 过滤文件获取初始字符串，如过滤文件中的注释
      */
-    public void initMap() {
-        fileAllLine = "";
+    public void initFileAllLine() {
         try {
             List<String> allLines = Files.readAllLines(Paths.get(uri));
             //  用于跳过多行注释 即 /* skip */
@@ -71,16 +67,9 @@ public class Analysis {
                 }
                 if (skip)
                     continue;
-                //  拼接字符串
-                String[] ss = line.trim().split(" ");
-                for (String s : ss) {
-                    fileAllLine += s;
-                }
+                fileAllLine.add(line.trim());
             }
-            //  初始化当前关键词表
-            for (String s : wordMap.keySet()) {
-                thisWordMap.put(s, fileAllLine.contains(s));
-            }
+//            System.out.println(fileAllLine);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -96,16 +85,16 @@ public class Analysis {
         String allLine = s;
         //  操作的StringBuilder对象
         StringBuilder strTmp = new StringBuilder();
-        //  与当前字符相关联的keyWord
-        StringBuilder keyWord = new StringBuilder();
         //  一次操作的字符数量
         int mulIntTmp;
+        //  与当前字符相关联的keyWord
+        StringBuilder keyWord = new StringBuilder();
         //  当前字符
         char thisChar;
         //  开始从fileAllLine字符串中进行解析
         for (int i = 0; i < allLine.length(); ) {
             thisChar = allLine.charAt(i);
-            switch (thisChar) {
+                        switch (thisChar) {
                 case 'm':
                     //  初始化当前KeyWord
                     keyWord = initStrBulider(keyWord, "main");
@@ -161,7 +150,6 @@ public class Analysis {
                     } catch (CHARException e) {
                         i += 1;
                         e.printStackTrace();
-                        return null;
                     }
                     break;
                 case '0':
@@ -262,6 +250,11 @@ public class Analysis {
                     keyWord = initStrBulider(keyWord, "!=");
                     i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
                     break;
+                case ' ':
+                    if (isSpaceInString(strTmp))
+                        strTmp.append(thisChar);
+                    i++;
+                    break;
                 default:
                     keyWord = initStrBulider(keyWord, String.valueOf(thisChar));
                     i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
@@ -270,7 +263,6 @@ public class Analysis {
         }
         return resultStr;
     }
-
     /**
      * 词法分析
      * @param strTmp 暂存的字符串
@@ -366,10 +358,10 @@ public class Analysis {
      * @return          当前关键词表是否包含该关键词
      */
     public boolean isKeyWord(String inputStr) {
-        if (thisWordMap.get(inputStr) == null) {
+        if (wordMap.get(inputStr) == null) {
             return false;
         } else
-            return thisWordMap.get(inputStr);
+            return true;
     }
 
     /**
@@ -419,5 +411,13 @@ public class Analysis {
             strTmp.append(keyWord.charAt(0));
             return 1;
         }
+    }
+    public boolean isSpaceInString(StringBuilder strTmp){
+        if (strTmp.length()==0)
+            return false;
+        else if (strTmp.charAt(0)=='"' || strTmp.charAt(0)=='\'')
+            return true;
+        else
+            return false;
     }
 }
