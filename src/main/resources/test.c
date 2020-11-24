@@ -1,5 +1,5 @@
 void main(){
-    int a 1 = 11.23;
+    int a 1 = 11 23;
     char b = 2;
     int c2c = 3;
     int array[2]={'1','2'};
@@ -19,5 +19,6 @@ void main(){
     }
     while(a<=320){
         b="b123owqeysdfnlsadfreturn  yqweoslmzxhalsqwelk";
+        c="Hello "Hello wolrd!"wolrd!"
     }
 }

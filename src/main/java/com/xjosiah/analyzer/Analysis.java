@@ -94,54 +94,109 @@ public class Analysis {
         //  开始从fileAllLine字符串中进行解析
         for (int i = 0; i < allLine.length(); ) {
             thisChar = allLine.charAt(i);
-                        switch (thisChar) {
+            switch (thisChar) {
                 case 'm':
                     //  初始化当前KeyWord
                     keyWord = initStrBulider(keyWord, "main");
                     //  进行词法分析
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+
+                    }
+                        i++;
                     break;
                 case 'i':
                     keyWord = initStrBulider(keyWord, "int");
                     //  char(int)类型后紧跟一个char(int)是不符合词法规律的，因此此处的char视为是ID类型中的子字符串
                     //  与'i'对应的有两个关键词，即 int id
                     if (!isID()) {
-                        mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        if(i+keyWord.length()<=allLine.length()){
+                            mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        }else{
+                            strTmp.append(thisChar);
+                            mulIntTmp=1;
+                        }
                     } else
-                        mulIntTmp = appenIDtoStrTmp(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        if(i+keyWord.length()<=allLine.length()){
+                            mulIntTmp = appenIDtoStrTmp(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        }else{
+                            strTmp.append(thisChar);
+                            mulIntTmp=1;
+                        }
                     if (mulIntTmp == 1) {
                         strTmp.deleteCharAt(strTmp.length() - 1);
                         keyWord = initStrBulider(keyWord, "if");
-                        mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        if(i+keyWord.length()<=allLine.length()){
+                            mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        }else{
+                            strTmp.append(thisChar);
+                            mulIntTmp=1;
+                        }
                     }
                     i += mulIntTmp;
                     break;
                 case 'c':
+                    keyWord = initStrBulider(keyWord, "char");
                     if (!isID()) {
-                        keyWord = initStrBulider(keyWord, "char");
-                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        if(i+keyWord.length()<=allLine.length()){
+                            i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        }else{
+                            strTmp.append(thisChar);
+                            i++;
+                        }
                     } else
-                        i += appenIDtoStrTmp(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        if(i+keyWord.length()<=allLine.length()){
+                            i += appenIDtoStrTmp(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        }else{
+                            strTmp.append(thisChar);
+                            i++;
+                        }
                     break;
                 case 'e':
                     keyWord = initStrBulider(keyWord, "else");
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        i++;
+                    }
                     break;
                 case 'f':
                     keyWord = initStrBulider(keyWord, "for");
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        i++;
+                    }
                     break;
                 case 'w':
                     keyWord = initStrBulider(keyWord, "while");
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        i++;
+                    }
                     break;
                 case 'r':
                     keyWord = initStrBulider(keyWord, "return");
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        i++;
+                        strTmp.append(thisChar);
+                    }
                     break;
                 case 'v':
                     keyWord = initStrBulider(keyWord, "void");
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        i++;
+                        strTmp.append(thisChar);
+                    }
                     break;
                 case '\'':
                 case '\"':
@@ -166,98 +221,212 @@ public class Analysis {
                     break;
                 case '=':
                     keyWord = initStrBulider(keyWord, "==");
-                    mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        mulIntTmp=1;
+                    }
                     if (mulIntTmp == 1) {
                         strTmp.deleteCharAt(strTmp.length() - 1);
                         keyWord = initStrBulider(keyWord, "=");
-                        mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        if(i+keyWord.length()<=allLine.length()){
+                            mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        }else{
+                            strTmp.append(thisChar);
+                            mulIntTmp=1;
+                        }
                     }
                     i += mulIntTmp;
                     break;
                 case '+':
                     keyWord = initStrBulider(keyWord, "+");
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        i++;
+                    }
                     break;
                 case '-':
                     keyWord = initStrBulider(keyWord, "-");
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        i++;
+                    }
                     break;
                 case '*':
                     keyWord = initStrBulider(keyWord, "*");
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        i++;
+                    }
                     break;
                 case '/':
                     keyWord = initStrBulider(keyWord, "/");
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        i++;
+                    }
                     break;
                 case '(':
                     keyWord = initStrBulider(keyWord, "(");
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        i++;
+                    }
                     break;
                 case ')':
                     keyWord = initStrBulider(keyWord, ")");
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        i++;
+                    }
                     break;
                 case '[':
                     keyWord = initStrBulider(keyWord, "[");
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        i++;
+                    }
                     break;
                 case ']':
                     keyWord = initStrBulider(keyWord, "]");
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        i++;
+                    }
                     break;
                 case '{':
                     keyWord = initStrBulider(keyWord, "{");
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        i++;
+                    }
                     break;
                 case '}':
                     keyWord = initStrBulider(keyWord, "}");
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        i++;
+                    }
                     break;
                 case ',':
                     keyWord = initStrBulider(keyWord, ",");
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        i++;
+                    }
                     break;
                 case ':':
                     keyWord = initStrBulider(keyWord, ":");
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        i++;
+                    }
                     break;
                 case ';':
                     keyWord = initStrBulider(keyWord, ";");
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        i++;
+                    }
                     break;
                 case '>':
                     keyWord = initStrBulider(keyWord, ">=");
-                    mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        mulIntTmp=1;
+                    }
                     if (mulIntTmp == 1) {
                         strTmp.deleteCharAt(strTmp.length() - 1);
                         keyWord = initStrBulider(keyWord, ">");
-                        mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        if(i+keyWord.length()<=allLine.length()){
+                            mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        }else{
+                            strTmp.append(thisChar);
+                            mulIntTmp=1;
+                        }
                     }
                     i += mulIntTmp;
                     break;
                 case '<':
                     keyWord = initStrBulider(keyWord, "<=");
-                    mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        mulIntTmp=1;
+                    }
                     if (mulIntTmp == 1) {
                         strTmp.deleteCharAt(strTmp.length() - 1);
                         keyWord = initStrBulider(keyWord, "<");
-                        mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        if(i+keyWord.length()<=allLine.length()){
+                            mulIntTmp = getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                        }else{
+                            strTmp.append(thisChar);
+                            mulIntTmp=1;
+                        }
                     }
                     i += mulIntTmp;
                     break;
                 case '!':
                     keyWord = initStrBulider(keyWord, "!=");
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        i++;
+                    }
                     break;
                 case ' ':
-                    if (isSpaceInString(strTmp))
-                        strTmp.append(thisChar);
+                    if (strTmp.length()!=0){
+                        if (isSpaceInString(strTmp)){
+                            strTmp.append(thisChar);
+                        }else if (String.valueOf(strTmp.charAt(0)).matches("[0-9]")) {
+                            resultStr.add(new StringBuilder(20 + "\t:\t" + strTmp));
+                            strTmp.delete(0,strTmp.length());
+                        }else {
+                            resultStr.add(new StringBuilder(10 + "\t:\t" + strTmp));
+                            strTmp.delete(0,strTmp.length());
+                        }
+                    }
                     i++;
                     break;
                 default:
                     keyWord = initStrBulider(keyWord, String.valueOf(thisChar));
-                    i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    if(i+keyWord.length()<=allLine.length()){
+                        i += getKeyWord(strTmp, allLine.substring(i, i + keyWord.length()), keyWord.toString());
+                    }else{
+                        strTmp.append(thisChar);
+                        i++;
+                    }
                     break;
             }
         }
@@ -272,7 +441,7 @@ public class Analysis {
      * @throws AnalysisException
      */
     public int getKeyWord(StringBuilder strTmp, String subStr, String keyWord) throws AnalysisException {
-        //  查看当前关键词表中有无该关键词，没有则直接跳过，并暂存当前字符
+        //  查看关键词表中有无该关键词，没有则直接跳过，并暂存当前字符
         if (isKeyWord(keyWord)) {
             if (subStr.equals(keyWord)) {
                 //  处理暂存的字符串，找到关键词也意味着前面暂存未处理的字符串结束
@@ -334,8 +503,15 @@ public class Analysis {
                 }
                 strTmp.delete(0, strTmp.length());
             }else {
-                //  异常处理
-                throw new CHARException("errorString:" + strTmp.toString() + "'\tchar类型变量错误：'' 和 \"\" 不对应");
+                if (String.valueOf(strTmp.charAt(0)).matches("[0-9]")) {
+                    resultStr.add(new StringBuilder(20 + "\t:\t" + strTmp));
+                }else {
+                    resultStr.add(new StringBuilder(10 + "\t:\t" + strTmp));
+                }
+                strTmp.delete(0, strTmp.length());
+                strTmp.append(thisChar);
+//                //  异常处理
+//                throw new CHARException("errorString:" + strTmp.toString() + "\tchar类型变量错误：'' 和 \"\" 不对应");
             }
         }
         return 1;
@@ -412,10 +588,9 @@ public class Analysis {
             return 1;
         }
     }
+
     public boolean isSpaceInString(StringBuilder strTmp){
-        if (strTmp.length()==0)
-            return false;
-        else if (strTmp.charAt(0)=='"' || strTmp.charAt(0)=='\'')
+        if (strTmp.charAt(0)=='"' || strTmp.charAt(0)=='\'')
             return true;
         else
             return false;
