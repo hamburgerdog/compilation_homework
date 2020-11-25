@@ -3,6 +3,7 @@ package com.xjosiah.analyzer;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class AnalysisTest {
     @Test
@@ -42,4 +43,18 @@ public class AnalysisTest {
         System.out.println(String.valueOf(c).matches("^[0-9]"));
     }
 
+
+    @Test
+    public void testAnalysis2(){
+        Analysis2 analysis2 = new Analysis2("src/main/resources/test2.c");
+        ArrayList<String> stringArrayList = null;
+        try {
+            stringArrayList = analysis2.doAnalysis();
+            stringArrayList.forEach(System.out::println);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+    }
 }

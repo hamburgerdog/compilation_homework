@@ -43,6 +43,7 @@ public class AnalyzerMap {
         wordMap.put("<",36);
         wordMap.put(">=",37);
         wordMap.put("<=",38);
+        wordMap.put("!",39);
         wordMap.put("==",29);
         wordMap.put("!=",40);
     }
