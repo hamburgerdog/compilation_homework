@@ -1,6 +1,6 @@
 void main(){
-    int a 1 = 11 23;
-    char b = 2;
+    int a 1 = 11 23;=123123 abwqe //123abwq;123 -=+;123>=!==
+    +char b = 2;/*12321312321*/int qwe123 = 1;
     int c2c = 3;
     int array[2]={'1','2'};
     if(a == 1){

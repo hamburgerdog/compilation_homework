@@ -3,7 +3,6 @@ package com.xjosiah.analyzer;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class AnalysisTest {
     @Test
@@ -38,15 +37,18 @@ public class AnalysisTest {
 
     @Test
     public void regixTest() {
-        StringBuilder stringBuilder = new StringBuilder("1.123");
-        char c = stringBuilder.charAt(0);
-        System.out.println(String.valueOf(c).matches("^[0-9]"));
+//        StringBuilder stringBuilder = new StringBuilder("12342314");
+//        char c = stringBuilder.charAt(0);
+//        System.out.println(stringBuilder.toString().matches("^.*\\D+.*"));
+        String s = "oqweriuohasdf/*1239872314*/123";
+//        String[] split = s.split("^.*((/\\*){1}.*(\\*/){1}){1}.*");
+        String[] split = s.split("\\*/");
+        System.out.println(split[0]+" "+split[split.length-1]);
+//        System.out.println(s.matches("^.*((/\\*){1}.*(\\*/){1}){1}.*"));
     }
-
-
     @Test
-    public void testAnalysis2(){
-        Analysis2 analysis2 = new Analysis2("src/main/resources/test2.c");
+    public void testAnalysis2() {
+        Analysis2 analysis2 = new Analysis2("src/main/resources/test.c");
         ArrayList<String> stringArrayList = null;
         try {
             stringArrayList = analysis2.doAnalysis();
