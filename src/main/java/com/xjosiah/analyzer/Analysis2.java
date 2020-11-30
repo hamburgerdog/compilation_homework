@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * 一个简单的词法分析器
+ */
 public class Analysis2 {
     //  用于初始化当前关键词表的C语言源程序的URI
     private String uri;
@@ -23,13 +26,6 @@ public class Analysis2 {
         resultStr = new ArrayList<>();
         fileAllLine = new ArrayList<>();
         initFileAllLine();
-    }
-
-    /**
-     * @return 源文件过滤后的初始字符串
-     */
-    public ArrayList<String> getFileAllLine() {
-        return fileAllLine;
     }
 
     /**
@@ -65,6 +61,7 @@ public class Analysis2 {
                     fileAllLine.add(split[0]);
                     split = split[1].split("\\*/");
                     fileAllLine.add(split[split.length-1]);
+                    continue;
                 }
                 else if (line.matches("^.*(/\\*)+.*")) {
                     skip=true;
@@ -88,6 +85,11 @@ public class Analysis2 {
         }
     }
 
+    /**
+     * 对词法分析器中存放的字符串进行分析
+     * @return
+     * @throws Exception
+     */
     public ArrayList<String> doAnalysis() throws Exception {
         StringBuilder strTmp = new StringBuilder();
         int i;
@@ -196,19 +198,41 @@ public class Analysis2 {
         return resultStr;
     }
 
+    /**
+     * 主要用于清空暂存的字符串
+     * @param sb
+     */
     private void initStringBuilder(StringBuilder sb) {
         sb.delete(0, sb.length());
     }
 
+    /**
+     * 向结果集中存放数据
+     *  @param sb   要存放的字符串，SYN为关键词自动匹配
+     * @return
+     */
     private String addWord(StringBuilder sb) {
         String result = wordMap.get(sb.toString()) + ":" + sb.toString();
         initStringBuilder(sb);
         return result;
     }
 
+    /**
+     * 向结果集中存放数据
+     * @param sb    要存放的字符串
+     * @param SYN   指定一个SYN
+     * @return
+     */
     private String addWord(StringBuilder sb, int SYN) {
         String result = SYN + ":" + sb.toString();
         initStringBuilder(sb);
         return result;
+    }
+
+    /**
+     * @return 源文件过滤后的初始字符串
+     */
+    public ArrayList<String> getFileAllLine() {
+        return fileAllLine;
     }
 }

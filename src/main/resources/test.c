@@ -1,3 +1,5 @@
+#include<stdio.h>
+
 void main(){
     int a 1 = 11 23;=123123 abwqe //123abwq;123 -=+;123>=!==
     +char b = 2;/*12321312321*/int qwe123 = 1;
@@ -18,7 +20,7 @@ void main(){
             return;
     }
     while(a<=320){
-        b="b123owqeysdfnlsadfreturn  yqweoslmzxhalsqwelk";
+        b="b123owqeysdfnlsadfreturn  yqweoslmzxhalsqwelk -=+;123>=!==";
         c="Hello "Hello wolrd!"wolrd!"
     }
 }

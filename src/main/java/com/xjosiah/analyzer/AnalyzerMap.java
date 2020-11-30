@@ -46,6 +46,7 @@ public class AnalyzerMap {
         wordMap.put("!",39);
         wordMap.put("==",29);
         wordMap.put("!=",40);
+        wordMap.put("ERROR",99);
     }
 
     /**
