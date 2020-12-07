@@ -1,4 +1,4 @@
-package com.xjosiah.analyzer;
+package com.xjosiah.lexical_analyzer;
 
 /**
  * 通用的词法分析异常

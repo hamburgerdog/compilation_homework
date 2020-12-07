@@ -1,4 +1,4 @@
-package com.xjosiah.analyzer;
+package com.xjosiah.lexical_analyzer;
 
 import java.io.IOException;
 import java.nio.file.Files;

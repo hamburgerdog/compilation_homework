@@ -1,4 +1,4 @@
-package com.xjosiah.analyzer;
+package com.xjosiah.lexical_analyzer;
 
 /**
  * 词法分析中出现的字符异常
