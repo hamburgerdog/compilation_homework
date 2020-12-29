@@ -5,6 +5,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * 一个算式表达式LL(1)分析表生成器；
+ *
+ * @since 2020.12.7
+ */
 public class Grammer {
     private String[][] analyzeTable;
 
@@ -25,6 +30,11 @@ public class Grammer {
 
     private HashMap<Character, HashSet<Character>> followMap;
 
+    /**
+     * 进行分析表构造器的初始化过程
+     * @param ll1Array      表达式
+     * @param beginChar     起始字符
+     */
     public Grammer(ArrayList<String> ll1Array, Character beginChar) {
         this.ll1Array = ll1Array;
         this.beginChar = beginChar;
@@ -45,24 +55,32 @@ public class Grammer {
     }
 
     /**
-     * 初始化非终结符和终结符
+     * 初始化非终结符集和终结符集
      */
     public void initSet() {
+        //  构造非终结符集 即表达式的 -> 左边
         for (String sItem : ll1Array) {
             String[] split = sItem.split("->");
             vnSet.add(split[0].charAt(0));
         }
-        for (String sItem : ll1Array){
+        //  构造终结符集
+        for (String sItem : ll1Array) {
             String[] split = sItem.split("->");
             String vtStr = split[1];
+            //  表达式的 -> 右边不一定单为终结符
             for (int i = 0; i < vtStr.length(); i++) {
                 char cItem = vtStr.charAt(i);
+                //  过滤掉非终结符
                 if (!vnSet.contains(cItem))
                     vtSet.add(cItem);
             }
         }
     }
 
+    /**
+     * 初始化表达式表单
+     * 主要任务是：将将所有表达式从数组中存放到map结构中便于操作
+     */
     public void initExpMap() {
         for (String sItem : ll1Array) {
             String[] split = sItem.split("->");
@@ -79,62 +97,85 @@ public class Grammer {
         }
     }
 
+    /**
+     * 初始first集
+     */
     public void initFirstMap() {
-        for (Character c : vnSet) {
-            ArrayList<String> expArrayC = expMap.get(c);
-            for (String sItem : expArrayC) {
+        for (Character vn : vnSet) {
+            ArrayList<String> expArray = expMap.get(vn);
+            for (String exp : expArray) {
                 boolean doBreak = false;
-                for (int i = 0; i < sItem.length(); i++) {
-                    char cItem = sItem.charAt(i);
-                    HashSet<Character> itemSet = firstMap.get(c);
-                    if (itemSet == null) {
-                        itemSet = new HashSet<Character>();
+//                System.out.println("initFirstMap:\tnow express is " + exp);
+                for (int i = 0; i < exp.length(); i++) {
+                    char c = exp.charAt(i);
+                    HashSet<Character> firstMapItem = firstMap.get(vn);
+                    if (firstMapItem == null) {
+                        firstMapItem = new HashSet<Character>();
                     }
-                    doBreak = doFirst(itemSet, c, cItem);
-                    if (doBreak) {
+                    //  提前结束处理
+                    doBreak = putItemToFirstMap(firstMapItem, vn, c);
+                    if (doBreak)
                         break;
-                    }
                 }
             }
         }
     }
 
-    private boolean doFirst(HashSet<Character> itemSet, Character c, char cItem) {
-        if (cItem == 'ε' || vtSet.contains(cItem)) {
-            itemSet.add(cItem);
-            firstMap.put(c, itemSet);
+    /**
+     * 构造first集
+     * @param itemSet       集中的项
+     * @param vnChar        非终结字符集
+     * @param nowChar       要处理的当前字符
+     * @return              构造成功与否
+     */
+    private boolean putItemToFirstMap(HashSet<Character> itemSet, Character vnChar, char nowChar) {
+//        System.out.println("this vnChar is " + vnChar + "\tnowChar is " + nowChar);
+        if (nowChar == 'ε' || vtSet.contains(nowChar)) {
+            itemSet.add(nowChar);
+            firstMap.put(vnChar, itemSet);
             return true;
-        } else if (vnSet.contains(cItem)) {
-            ArrayList<String> expArrayCItem = expMap.get(cItem);
+        } else if (vnSet.contains(nowChar)) {
+            ArrayList<String> expArrayCItem = expMap.get(nowChar);
             for (int i = 0; i < expArrayCItem.size(); i++) {
                 String s = expArrayCItem.get(i);
                 char cTmp = s.charAt(0);
-                doFirst(itemSet, c, cTmp);
+                putItemToFirstMap(itemSet, vnChar, cTmp);
             }
         }
         return true;
     }
 
+    /**
+     * 初始化我follow集
+     */
     public void initFollowMap() {
-        for (Character cTmp : vnSet) {
+        for (Character vnChar : vnSet) {
             HashSet<Character> tmpSet = new HashSet<>();
-            followMap.put(cTmp, tmpSet);
+            followMap.put(vnChar, tmpSet);
         }
-        for (Character cItem : vnSet) {
+        for (Character vn : vnSet) {
             Set<Character> expMapKeySet = expMap.keySet();
-            for (Character expMapCharKey : expMapKeySet) {
-                ArrayList<String> strItemArray = expMap.get(expMapCharKey);
-                for (String strItem : strItemArray) {
-                    System.out.println(expMapCharKey + "->" + strItem);
-                    HashSet<Character> itemSet = followMap.get(cItem);
-                    doFollow(cItem, cItem, expMapCharKey, strItem, itemSet);
+            for (Character expMapKey : expMapKeySet) {
+                ArrayList<String> expMapValue = expMap.get(expMapKey);
+                for (String exp : expMapValue) {
+//                    System.out.println(expMapKey + "->" + exp);
+                    HashSet<Character> followMapValue = followMap.get(vn);
+                    putItemToFollow(vn, vn, expMapKey, exp, followMapValue);
                 }
             }
         }
     }
 
-    private void doFollow(Character nowChar, Character cItem,
-                          Character keyChar, String strItem, HashSet<Character> itemSet) {
+    /**
+     * 构造follow集
+     * @param nowChar       当前处理的字符
+     * @param cItem
+     * @param keyChar
+     * @param strItem
+     * @param itemSet
+     */
+    private void putItemToFollow(Character nowChar, Character cItem,
+                                 Character keyChar, String strItem, HashSet<Character> itemSet) {
         if (cItem.equals(beginChar)) {
             itemSet.add('#');
             followMap.put(nowChar, itemSet);
@@ -154,13 +195,12 @@ public class Grammer {
             followMap.put(nowChar, itemSet);
 
             if (whetherAbIsNull(vnSet, strItem, cItem, expMap)) {
-                Character lastCharAb = getLastChar(strItem, cItem);
                 if (!keyChar.equals(cItem)) {
                     Set<Character> keySet = expMap.keySet();
                     for (Character key : keySet) {
                         ArrayList<String> strArray = expMap.get(key);
                         for (String s : strArray) {
-                            doFollow(nowChar, keyChar, key, s, itemSet);
+                            putItemToFollow(nowChar, keyChar, key, s, itemSet);
                         }
                     }
                 }
@@ -172,13 +212,16 @@ public class Grammer {
                 for (Character key : keySet) {
                     ArrayList<String> strArray = expMap.get(key);
                     for (String s : strArray) {
-                        doFollow(nowChar, keyChar, key, s, itemSet);
+                        putItemToFollow(nowChar, keyChar, key, s, itemSet);
                     }
                 }
             }
         }
     }
 
+    /**
+     * 初始化 select 集
+     */
     public void initSelectMap() {
         Set<Character> keySet = expMap.keySet();
         for (Character key : keySet) {
@@ -207,13 +250,17 @@ public class Grammer {
         }
     }
 
-    public void creatAlzTable() {
+    /**
+     * 创建分析表
+     * @return      分析表
+     */
+    public String[][] creatAlzTable() {
         Object[] vtArray = vtSet.toArray();
         Object[] vnArray = vnSet.toArray();
 
         this.analyzeTable = new String[vnArray.length + 1][vtArray.length + 1];
 
-        System.out.println("-----------------------------------------------------------------------------");
+        System.out.println("------------------------------该算术表达式的LL(1)分析表为--------------------------------");
         System.out.print("表" + "\t\t");
 
         analyzeTable[0][0] = "Vn/Vt";
@@ -237,15 +284,23 @@ public class Grammer {
                     analyzeTable[i + 1][j + 1] = "";
                 } else {
                     System.out.print(vnArray[i] + "->" + exp + "\t\t");
-                    analyzeTable[i + 1][j + 1] = vnArray[i] + "->" + exp;
+//                    analyzeTable[i + 1][j + 1] = vnArray[i] + "->" + exp;
+                    analyzeTable[i + 1][j + 1] = exp;
                 }
             }
             System.out.println();
         }
-        System.out.println("-----------------------------------------------------------------------------");
+        System.out.println("------------------------------------------------------------------------------------");
+        return analyzeTable;
     }
 
-
+    /**
+     * 是否包含 Ab 型文法
+     * @param vtSet
+     * @param strItem
+     * @param c
+     * @return
+     */
     private boolean isContainAb(HashSet<Character> vtSet, String strItem, Character c) {
         String s = c.toString();
         if (strItem.contains(s)) {
@@ -261,6 +316,27 @@ public class Grammer {
             return false;
     }
 
+    private boolean whetherAbIsNull(HashSet<Character> vnSet, String strItem, Character c,
+                                    HashMap<Character, ArrayList<String>> expMap) {
+        String s = c.toString();
+        if (isContainAB(vnSet, strItem, c)) {
+            Character lastChar = getLastChar(strItem, c);
+            ArrayList<String> expArray = expMap.get(lastChar);
+            if (expArray.contains("ε")) {
+//                System.out.println(lastChar + " : ('ε')" + s);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 是否包含 AB 型文法
+     * @param vnSet
+     * @param strItem
+     * @param c
+     * @return
+     */
     private boolean isContainAB(HashSet<Character> vnSet, String strItem, Character c) {
         String s = c.toString();
         if (strItem.contains(s)) {
@@ -276,26 +352,24 @@ public class Grammer {
             return false;
     }
 
+    /**
+     * 是否包含 bA 型文法
+     * @param strItem
+     * @param c
+     * @return
+     */
     private boolean isContainbA(String strItem, Character c) {
         String s = c.toString();
         String lastStr = strItem.substring(strItem.length() - 1);
         return lastStr.equals(s);
     }
 
-    private boolean whetherAbIsNull(HashSet<Character> vnSet, String strItem, Character c,
-                                    HashMap<Character, ArrayList<String>> expMap) {
-        String s = c.toString();
-        if (isContainAB(vnSet, strItem, c)) {
-            Character lastChar = getLastChar(strItem, c);
-            ArrayList<String> expArray = expMap.get(lastChar);
-            if (expArray.contains("ε")) {
-                System.out.println(lastChar + " : ('ε')" + s);
-                return true;
-            }
-        }
-        return false;
-    }
-
+    /**
+     * 获取要处理的字符
+     * @param strItem
+     * @param c
+     * @return
+     */
     private Character getLastChar(String strItem, Character c) {
         String s = c.toString();
         if (strItem.contains(s)) {
@@ -311,6 +385,13 @@ public class Grammer {
         return null;
     }
 
+    /**
+     * 查找表达式
+     * @param selectMap
+     * @param keyChar
+     * @param c
+     * @return
+     */
     private String searchExp(HashMap<Character, HashMap<String, HashSet<Character>>> selectMap,
                              Character keyChar, char c) {
         try {
@@ -326,6 +407,4 @@ public class Grammer {
         }
         return null;
     }
-
-
 }
