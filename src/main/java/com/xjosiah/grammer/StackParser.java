@@ -76,7 +76,7 @@ public class StackParser {
                     return;
                 }
             }
-        } while (!inputChar.equals("#"));
+        } while (!(inputChar.equals("#")&&x.equals("#")));
         System.out.println("分析成功！");
     }
 
@@ -165,15 +165,22 @@ public class StackParser {
         return true;
     }
 
+    /**
+     * 输出信息
+     * @param inputChar
+     * @param inputStr
+     */
     private void printTackleMsg(String inputChar,String inputStr){
         StringBuilder expStackStr = new StringBuilder();
         for (String s :
                 expStack) {
             expStackStr.append(s);
         }
-        if (expStackStr.length()>=4){
-            System.out.print(expStackStr+"\t\t\t\t"+inputChar+"\t\t\t\t"+inputStr+"\r\n");
-        }else
-            System.out.print(expStackStr+"\t\t\t\t\t"+inputChar+"\t\t\t\t"+inputStr+"\r\n");
+        System.out.print(expStackStr);
+        int trims = expStackStr.length() / 4;
+        for (int i=5;i>trims;i--){
+            System.out.print("\t");
+        }
+        System.out.print(inputChar+"\t\t\t\t"+inputStr+"\r\n");
     }
 }
